@@ -37,6 +37,16 @@
         <ImageView
             android:layout_width="41dp"
             android:layout_height="wrap_content"
+            android:id="@+id/newImage"
+            app:srcCompat="@drawable/new_image"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp" />
+
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="wrap_content"
             android:id="@+id/text"
             app:srcCompat="@drawable/t"
             android:layout_weight="1"
