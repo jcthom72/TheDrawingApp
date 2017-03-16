@@ -98,6 +98,15 @@
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
 
+        <ImageButton
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/colorPicker"
+            app:srcCompat="@drawable/color_picker"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:background="#ffffff" />
+
     </LinearLayout>
     
     <csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp.UserDrawingEngine
