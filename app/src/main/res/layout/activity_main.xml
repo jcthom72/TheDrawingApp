@@ -13,7 +13,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:background="#ffffff">
 
         <ImageView
             android:layout_width="41dp"
@@ -23,6 +24,15 @@
             android:layout_weight="1"
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
+
+        <ImageView
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/lineColor"
+            app:srcCompat="@drawable/color_picker"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:background="#ffffff" />
 
         <ImageView
             android:layout_width="41dp"
@@ -43,15 +53,6 @@
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
 
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/text"
-            app:srcCompat="@drawable/t"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
 
         <ImageView
             android:layout_width="41dp"
@@ -81,6 +82,15 @@
             android:paddingTop="4dp" />
 
         <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/text"
+            app:srcCompat="@drawable/t"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp" />
+
+        <ImageView
             android:layout_width="41dp"
             android:layout_height="wrap_content"
             android:id="@+id/saveToGallery"
@@ -98,22 +108,23 @@
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
 
-        <ImageButton
+        <ImageView
             android:layout_width="47dp"
             android:layout_height="wrap_content"
-            android:id="@+id/colorPicker"
-            app:srcCompat="@drawable/color_picker"
+            android:id="@+id/background_color"
+            app:srcCompat="@drawable/background_color"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
             android:background="#ffffff" />
 
     </LinearLayout>
-    
+
     <csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp.UserDrawingEngine
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ffffff"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:id="@+id/drawingLayout"/>
 
 
 </LinearLayout>
