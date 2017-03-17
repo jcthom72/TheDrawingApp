@@ -13,10 +13,11 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    // colorData is used to access the data that contains the colors the user will choose
     private ColorData colorData;
     private UserDrawingEngine drawingEngine;
-    private ArrayList<String> colorList;
-    private ColorPicker colorPicker;
+    private ArrayList<String> colorList; // colorList will contain the colors for the user to choose
+    private ColorPicker colorPicker; // colorPicker is used to access the library methods
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         colorData = new ColorData();
         colorList = new ArrayList<String>();
         drawingEngine = (UserDrawingEngine) findViewById(R.id.drawingLayout);
+
+
+        // ImageViews are linked to the choices the user has on screen
         ImageView backgroundColor = (ImageView) findViewById(R.id.background_color);
         ImageView lineChoice = (ImageView) findViewById(R.id.lineThickness);
         ImageView brush = (ImageView) findViewById(R.id.drawingBrush);
@@ -36,46 +40,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageView roundedRectangle = (ImageView) findViewById(R.id.roundedRect);
         ImageView text = (ImageView) findViewById(R.id.text);
 
+        // concise format to hold ImageViews
         ImageView[] userOptionImageViews = {backgroundColor, lineChoice, brush, circle, lineColor,
                         eraser, gallery, newImage, rectangle, roundedRectangle, text};
 
+        // when an image is clicked, the loop finds the View and sets the listener
         for (ImageView image: userOptionImageViews){
             image.setOnClickListener(this);
         }
-
-
-
     }
 
     @Override
     public void onClick(View view) {
-        retrieveColorData();
+        retrieveColorData(); // retrieves colors from ArrayList
         if (view.getId() == R.id.lineColor){
-
+            changeColor(R.id.lineColor);
         }
 
         else if (view.getId() == R.id.background_color){
+            changeColor(R.id.background_color);
+        }
 
-            colorPicker.show();
-            colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
-                @Override
-                public void onChooseColor(int position, int color) {
-                    findViewById(R.id.drawingLayout).setBackgroundColor(color);
+        else if (view.getId() == R.id.drawingBrush){
 
-                }
-
-                @Override
-                public void onCancel() {
-
-                }
-            });
         }
     }
-
+    /* this method creates a new colorPicker object to ensure that colorParent has the correct
+        parent View; colorList retrieves the colors from the ColorData class; then the ArrayList
+        is set as the color to show the user */
     public void retrieveColorData(){
         colorPicker = new ColorPicker(MainActivity.this);
         colorList = colorData.getColorData();
         colorPicker.setColors(colorList);
+    }
+
+    // this method actually changes the colors on the screen
+    public void changeColor(final int id){
+        colorPicker.show();
+        colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
+            @Override
+            public void onChooseColor(int position, int color) {
+                if (id == R.id.background_color){
+                    findViewById(R.id.drawingLayout).setBackgroundColor(color);
+                }else if (id == R.id.lineColor){
+                    drawingEngine.setPaintColor(color);
+                }
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+        });
     }
 }
 

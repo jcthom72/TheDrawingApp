@@ -33,6 +33,7 @@ public class UserDrawingEngine extends View {
         userDrawingSetup();
     }
 
+
     private void userDrawingSetup() {
         userTouch = new Path();
         imageStyles = new Paint();
@@ -43,7 +44,11 @@ public class UserDrawingEngine extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        canvas.drawPath(userTouch, imageStyles);
+    }
 
+    public void setPaintColor(int color){
+        imageStyles.setColor(color);
     }
 
     // onTouchEvent listener responds to user touches on the display
@@ -65,7 +70,7 @@ public class UserDrawingEngine extends View {
          /* when the users lift their finger from the screen, the path is drawn and then reset */
         }else if(event.getAction() == MotionEvent.ACTION_UP){
             drawImage.drawPath(userTouch, imageStyles);
-            userTouch.reset();
+            //userTouch.reset();
         }else{
             return false;
         }
