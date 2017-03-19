@@ -16,7 +16,9 @@ public class UserDrawingEngine extends View {
     private Path userTouch;
     private Paint imageStyles;
     private Canvas drawImage;
-
+    private Paths userPath;
+    private boolean circle = false;
+    private boolean rect = false;
 
     public UserDrawingEngine(Context context) {
         super(context);
@@ -34,10 +36,15 @@ public class UserDrawingEngine extends View {
     }
 
 
+    /* in this method the path that the user draws on the screen is saved to a vector in the
+         Paths class; the graphics object are initialized */
     private void userDrawingSetup() {
         userTouch = new Path();
+        userPath = new Paths();
+        userPath.setElement(userTouch);
         imageStyles = new Paint();
         imageStyles.setAntiAlias(true);
+        imageStyles.setStyle(Paint.Style.STROKE);
         drawImage = new Canvas();
 
     }
@@ -45,10 +52,26 @@ public class UserDrawingEngine extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawPath(userTouch, imageStyles);
+
+        if (circle){
+            int x = getWidth();
+            int y = getHeight();
+            int radius = 200;
+            canvas.drawCircle(x/2, y/2, radius, imageStyles);
+        }
+
+        if (rect){
+            canvas.drawRect(50, 50, 200, 200, imageStyles);
+        }
     }
 
     public void setPaintColor(int color){
         imageStyles.setColor(color);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
     }
 
     // onTouchEvent listener responds to user touches on the display
@@ -58,19 +81,18 @@ public class UserDrawingEngine extends View {
         float xPosition = event.getX();
         float yPosition = event.getY();
 
-        /* when the users first touch the screen, the path to be drawn starts at the
-                 location the users first touch */
+        /* when the users first touch the screen, the path to be drawn starts at the location
+             the users first touch */
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             userTouch.moveTo(xPosition, yPosition);
 
-         /* when the users draw the image on the screen, the path follows their direction */
+         // when the users draw the image on the screen, the path follows their direction
         }else if (event.getAction() == MotionEvent.ACTION_MOVE){
             userTouch.lineTo(xPosition, yPosition);
 
-         /* when the users lift their finger from the screen, the path is drawn and then reset */
+         // when the users lift their finger from the screen, the path is drawn and then reset
         }else if(event.getAction() == MotionEvent.ACTION_UP){
             drawImage.drawPath(userTouch, imageStyles);
-            //userTouch.reset();
         }else{
             return false;
         }
@@ -78,5 +100,20 @@ public class UserDrawingEngine extends View {
           invalidate();
           return true;
 
+    }
+
+    public void drawCircle(){
+        circle = true;
+        invalidate();
+    }
+
+    public void drawRectangle(){
+        rect = true;
+        invalidate();
+    }
+
+    // clear the current path from the user's screen
+    public void clearImage(){
+        userTouch.reset();
     }
 }

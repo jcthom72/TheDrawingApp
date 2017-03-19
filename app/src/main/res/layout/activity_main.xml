@@ -19,11 +19,12 @@
         <ImageView
             android:layout_width="41dp"
             android:layout_height="wrap_content"
-            android:id="@+id/drawingBrush"
-            app:srcCompat="@drawable/brush"
+            android:id="@+id/lineThickness"
+            app:srcCompat="@drawable/black_line"
             android:layout_weight="1"
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
+
 
         <ImageView
             android:layout_width="47dp"
@@ -33,15 +34,6 @@
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
             android:background="#ffffff" />
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/lineThickness"
-            app:srcCompat="@drawable/black_line"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
 
 
         <ImageView
@@ -93,7 +85,7 @@
         <ImageView
             android:layout_width="41dp"
             android:layout_height="wrap_content"
-            android:id="@+id/saveToGallery"
+            android:id="@+id/saveToFile"
             app:srcCompat="@drawable/gallery"
             android:layout_weight="1"
             android:paddingLeft="2dp"
