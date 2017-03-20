@@ -46,7 +46,7 @@ public class UserDrawingEngine extends View {
         userPath.setElement(userTouch);
         imageStyles = new Paint();
         imageStyles.setAntiAlias(true);
-        imageStyles.setStyle(Paint.Style.FILL_AND_STROKE);
+        imageStyles.setStyle(Paint.Style.STROKE);
         drawImage = new Canvas();
 
     }
