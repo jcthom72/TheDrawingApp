@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             userImage.addImage(drawingEngine);
             saveImageToFile(userImage);
             newPage();
+
         }
 
         // saves the image to a file

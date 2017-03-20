@@ -2,6 +2,7 @@ package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
@@ -19,6 +20,7 @@ public class UserDrawingEngine extends View {
     private Paths userPath;
     private boolean circle = false;
     private boolean rect = false;
+    private boolean clear = false;
 
     public UserDrawingEngine(Context context) {
         super(context);
@@ -44,7 +46,7 @@ public class UserDrawingEngine extends View {
         userPath.setElement(userTouch);
         imageStyles = new Paint();
         imageStyles.setAntiAlias(true);
-        imageStyles.setStyle(Paint.Style.STROKE);
+        imageStyles.setStyle(Paint.Style.FILL_AND_STROKE);
         drawImage = new Canvas();
 
     }
@@ -62,6 +64,13 @@ public class UserDrawingEngine extends View {
 
         if (rect){
             canvas.drawRect(50, 50, 200, 200, imageStyles);
+        }
+
+        if (clear){
+            canvas.drawColor(Color.WHITE);
+            clear = false;
+            rect = false;
+            circle = false;
         }
     }
 
@@ -115,5 +124,7 @@ public class UserDrawingEngine extends View {
     // clear the current path from the user's screen
     public void clearImage(){
         userTouch.reset();
+        clear = true;
+        invalidate();
     }
 }
