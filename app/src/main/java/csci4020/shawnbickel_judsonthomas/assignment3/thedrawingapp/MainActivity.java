@@ -85,12 +85,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // draws a circle on the screen
         else if (view.getId() == R.id.circle){
-            drawingEngine.drawCircle();
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.OVAL);
         }
 
         // draws a rectangle on the screen
         else if (view.getId() == R.id.rectangle){
-            drawingEngine.drawRectangle();
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.RECTANGLE);
+        }
+
+        //TESTING: here I use the rounded rect picture for selecting the freeform line
+        else if (view.getId() == R.id.roundedRect){
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
+        }
+
+        //TESTING: here I use the line thickness picture for selecting the straight line
+        else if(view.getId() == R.id.lineThickness){
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.STRAIGHTLINE);
         }
     }
     /* this method creates a new colorPicker object to ensure that colorPicker has the correct
@@ -109,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onChooseColor(int position, int color) {
                 if (id == R.id.background_color){
-                    findViewById(R.id.drawingLayout).setBackgroundColor(color);
+                    drawingEngine.setBackgroundPaintColor(color);
                 }else if (id == R.id.lineColor){
-                    drawingEngine.setPaintColor(color);
+                    drawingEngine.setForegroundPaintColor(color);
                 }
             }
             @Override
@@ -122,8 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void newPage(){
-        findViewById(R.id.drawingLayout).setBackgroundColor(getResources().getColor(R.color.white));
-        drawingEngine.clearImage();
+        //drawingEngine.clearImage();
     }
 
     @Override
