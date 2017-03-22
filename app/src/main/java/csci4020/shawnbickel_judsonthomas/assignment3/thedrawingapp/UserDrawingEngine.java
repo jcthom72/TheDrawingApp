@@ -272,6 +272,7 @@ public class UserDrawingEngine extends View {
     }
 
     private void userDrawingSetup() {
+
         foregroundPaint = new Paint();
         foregroundPaint.setColor(Color.BLACK);
         foregroundPaint.setAntiAlias(true);
@@ -290,6 +291,8 @@ public class UserDrawingEngine extends View {
 
         previewObject = previewCache.get(PreviewType.FREELINE);
         isPreviewing = false;
+
+
 
         objectsToDraw = new LinkedList<DrawableObject>();
     }

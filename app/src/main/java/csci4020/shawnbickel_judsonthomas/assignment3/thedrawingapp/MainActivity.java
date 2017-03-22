@@ -52,21 +52,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        retrieveColorData(); // retrieves colors from ArrayList
+        int v = view.getId();
 
         /* if one of the color wheels is chosen, the changeColor method will change the
           respective color */
-        if (view.getId() == R.id.lineColor){
-            changeColor(R.id.lineColor);
-        }
-
-        else if (view.getId() == R.id.background_color){
-            changeColor(R.id.background_color);
+        if (v == R.id.lineColor || v == R.id.background_color){
+            retrieveColorData(); // retrieves colors from ArrayList
+            changeColor(v);
         }
 
         /* when the new page button is clicked, the image is saved to a vector in the Image class
            and the page is reset by the newPage() method */
-        else if (view.getId() == R.id.newImage){
+        else if (v == R.id.newImage){
             userImage.addImage(drawingEngine);
             saveImageToFile(userImage);
             newPage();
@@ -74,16 +71,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // saves the image to a file
-        else if(view.getId() == R.id.saveToFile){
+        else if(v == R.id.saveToFile){
             saveImageToFile(userImage);
         }
 
         // deletes image from vector
-        else if (view.getId() == R.id.erase){
+        else if (v == R.id.erase){
             deleteImagefromVector(drawingEngine);
         }
 
         // draws a circle on the screen
+
         else if (view.getId() == R.id.circle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.OVAL);
         }
@@ -101,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //TESTING: here I use the line thickness picture for selecting the straight line
         else if(view.getId() == R.id.lineThickness){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.STRAIGHTLINE);
+
+     
+
         }
     }
     /* this method creates a new colorPicker object to ensure that colorPicker has the correct
