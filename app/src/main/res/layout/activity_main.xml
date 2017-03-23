@@ -11,29 +11,40 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:orientation="horizontal"
         android:layout_gravity="center"
         android:background="#ffffff">
 
         <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/lineThickness"
-            app:srcCompat="@drawable/black_line"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
-
-
-        <ImageView
             android:layout_width="47dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/lineColor"
-            app:srcCompat="@drawable/color_picker"
+            android:layout_height="37dp"
+            android:id="@+id/vertical_line"
+            app:srcCompat="@drawable/v_line"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
             android:background="#ffffff" />
+
+        <Spinner
+            android:layout_width="41dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/freeStyle"
+            android:background="@drawable/free_style"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:spinnerMode="dialog">
+
+        </Spinner>
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/lineColor"
+            app:srcCompat="@drawable/line_color"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp" />
 
 
         <ImageView
@@ -58,15 +69,6 @@
         <ImageView
             android:layout_width="41dp"
             android:layout_height="wrap_content"
-            android:id="@+id/roundedRect"
-            app:srcCompat="@drawable/rounded_rect"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
             android:id="@+id/circle"
             app:srcCompat="@drawable/circle"
             android:layout_weight="1"
@@ -78,24 +80,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/text"
             app:srcCompat="@drawable/t"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/saveToFile"
-            app:srcCompat="@drawable/gallery"
-            android:layout_weight="1"
-            android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
-
-        <ImageView
-            android:layout_width="41dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/erase"
-            app:srcCompat="@drawable/eraser"
             android:layout_weight="1"
             android:paddingLeft="2dp"
             android:paddingTop="4dp" />
@@ -117,6 +101,54 @@
         android:background="#ffffff"
         android:layout_weight="1"
         android:id="@+id/drawingLayout"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:background="#ffffff">
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/saveToFile"
+            app:srcCompat="@drawable/gallery"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp" />
+
+        <ImageView
+            android:layout_width="41dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/erase"
+            app:srcCompat="@drawable/eraser"
+            android:layout_weight="1"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp" />
+
+        <ImageView
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/undo"
+            app:srcCompat="@drawable/undo"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:background="#ffffff"
+            android:paddingBottom="4dp" />
+
+        <ImageView
+            android:layout_width="47dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/redo"
+            app:srcCompat="@drawable/redo"
+            android:paddingLeft="2dp"
+            android:paddingTop="4dp"
+            android:background="#ffffff"
+            android:paddingBottom="4dp" />
+
+    </LinearLayout>
 
 
 </LinearLayout>

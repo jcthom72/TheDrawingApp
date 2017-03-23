@@ -1,14 +1,11 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -318,6 +315,10 @@ public class UserDrawingEngine extends View {
     public void setForegroundPaintColor(int color){
         foregroundPaint.setColor(color);
         invalidate();
+    }
+
+    public void setForegroundPaintStrokeWidth(float width){
+        foregroundPaint.setStrokeWidth(width);
     }
 
     public void setBackgroundPaintColor(int color){
