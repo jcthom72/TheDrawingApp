@@ -1,12 +1,17 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -14,7 +19,7 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 /* this is a ColorPicker library; here is the URL:
     https://github.com/kristiyanP/colorpicker?utm_source=android-arsenal.com&utm_medium=referral&utm_campaign=3121 */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     // colorData is used to access the data that contains the colors the user will choose
     private ColorData colorData;
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView text;
     private ImageView undo;
     private ImageView redo;
+    private TextView userText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 int width = Integer.parseInt(freeStyle.getSelectedItem().toString());
                 drawingEngine.setForegroundPaintStrokeWidth((float) width);
+                drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
             }
 
             @Override
@@ -139,7 +146,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // allows the user to draw text at a specified point
         else if (v == R.id.text){
-
+            drawText();
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.TEXT);
         }
 
         else if (v == R.id.undo){
@@ -163,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // this method actually changes the colors on the screen
     public void changeColor(final int id){
+        setColorPickerTitle(id); // set color picker title
         colorPicker.show(); // library method to display ArrayList of colors
         // implements library listener
         colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
@@ -177,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             @Override
             public void onCancel() {
-
+                colorPicker.dismissDialog();
             }
         });
     }
@@ -198,6 +207,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void deleteImagefromVector(UserDrawingEngine image){
         userImage.deleteImage(image);
+    }
+
+    // sets the title of the color picker depending on the user's choice
+    public void setColorPickerTitle(int id){
+        if (id == R.id.background_color){
+            colorPicker.setTitle("Pick a Background Color"); // library method setTitle()
+        }else if (id == R.id.lineColor){
+            colorPicker.setTitle("Pick the Line Color");
+        }
+    }
+
+    public void drawText(){
+        View view = (LayoutInflater.from(this)).inflate(R.layout.dialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        userText = (EditText) view.findViewById(R.id.userText);
+        builder.setTitle("Enter Text to Place on the screen")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id){
+                        drawingEngine.setTextToDraw(userText.getText().toString().trim());
+                        drawingEngine.newText();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        builder.show();
     }
 
 }
