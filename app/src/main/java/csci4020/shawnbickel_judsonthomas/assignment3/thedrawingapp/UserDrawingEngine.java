@@ -1,14 +1,11 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,13 +19,16 @@ import java.util.Map;
  */
 
 public class UserDrawingEngine extends View {
-    public enum PreviewType{RECTANGLE, OVAL, FREELINE, STRAIGHTLINE}
+    public enum PreviewType{RECTANGLE, OVAL, FREELINE, STRAIGHTLINE, TEXT}
     private final Map<PreviewType, DrawableObject> previewCache = new HashMap<PreviewType, DrawableObject>();
     private Paint backgroundPaint;
     private Paint foregroundPaint;
     private DrawableObject previewObject;
     private LinkedList<DrawableObject> objectsToDraw;
     private boolean isPreviewing;
+    private String textToDraw;
+    private float xPosition;
+    private float yPosition;
 
     /*our DrawableObjects*/
 
@@ -255,6 +255,58 @@ public class UserDrawingEngine extends View {
         }
     }
 
+    private class Text extends DrawableObject{
+        private float startX, startY;
+        private Paint.FontMetrics fontMetrics;
+        private String text;
+        private Paint p;
+
+        public Text(Paint paint){
+            super(paint);
+        }
+
+        public Text(String t, float startX, float startY, Paint paint){
+            super(paint);
+            this.startX = startX;
+            this.startY = startY;
+            this.text = t;
+        }
+
+        @Override
+        public void drawMe(Canvas canvas) {
+            fontMetrics = new Paint.FontMetrics();
+            p = new Paint();
+            p.setColor(Color.BLACK);
+            p.setStyle(Paint.Style.FILL);
+            p.setTextSize(60f);
+            p.getFontMetrics(fontMetrics);
+            canvas.drawText(text, startX, startY, p);
+        }
+
+        @Override
+        public void start(float xPos, float yPos) {
+            if(!isMorphing) {
+                startX = xPos;
+                startY = yPos;
+                isMorphing = true;
+            }
+        }
+
+        @Override
+        public void move(float xPos, float yPos) {
+
+        }
+
+        @Override
+        public void end(float xPos, float yPos) {
+            isMorphing = false;
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            return new Text(textToDraw, xPosition, yPosition, new Paint(paint));
+        }
+    }
 
     public UserDrawingEngine(Context context) {
         super(context);
@@ -288,6 +340,7 @@ public class UserDrawingEngine extends View {
         previewCache.put(PreviewType.OVAL, new Oval(foregroundPaint));
         previewCache.put(PreviewType.FREELINE, new FreeLine(foregroundPaint));
         previewCache.put(PreviewType.STRAIGHTLINE, new StraightLine(foregroundPaint));
+        previewCache.put(PreviewType.TEXT, new Text(textToDraw ,xPosition,yPosition,foregroundPaint));
 
         previewObject = previewCache.get(PreviewType.FREELINE);
         isPreviewing = false;
@@ -320,6 +373,10 @@ public class UserDrawingEngine extends View {
         invalidate();
     }
 
+    public void setForegroundPaintStrokeWidth(float width){
+        foregroundPaint.setStrokeWidth(width);
+    }
+
     public void setBackgroundPaintColor(int color){
         backgroundPaint.setColor(color);
         invalidate();
@@ -338,13 +395,15 @@ public class UserDrawingEngine extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // the two position variables retrieve x and y coordinates of the user press location
-        float xPosition = event.getX();
-        float yPosition = event.getY();
+        xPosition = event.getX();
+        yPosition = event.getY();
+        float x = event.getX();
+        float y = event.getY();
 
         /* when the users first touch the screen*/
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             isPreviewing = true;
-            previewObject.start(xPosition, yPosition);
+            previewObject.start(x, y);
 
             /*Note: for action down we do not need to issue an invalidate call;
             * there is no reason to redraw the screen yet until the user moves the endpoint*/
@@ -352,7 +411,7 @@ public class UserDrawingEngine extends View {
 
         /* when the user drags their finger across the screen */
         else if (event.getAction() == MotionEvent.ACTION_MOVE){
-            previewObject.move(xPosition, yPosition);
+            previewObject.move(x, y);
 
             //invalidate our screen, queueing a new onDraw() call
             invalidate();
@@ -361,7 +420,7 @@ public class UserDrawingEngine extends View {
         /* when the user releases the screen */
         else if(event.getAction() == MotionEvent.ACTION_UP){
             isPreviewing = false;
-            previewObject.end(xPosition, yPosition);
+            previewObject.end(x, y);
             //add preview object to container
             try{
                 objectsToDraw.addLast((DrawableObject) previewObject.clone());
@@ -380,5 +439,13 @@ public class UserDrawingEngine extends View {
 
         return true;
 
+    }
+
+    public void setTextToDraw(String textToDraw){
+        this.textToDraw = textToDraw;
+    }
+
+    public void newText(){
+        previewCache.put(PreviewType.TEXT, new Text(textToDraw ,xPosition,yPosition,foregroundPaint));
     }
 }

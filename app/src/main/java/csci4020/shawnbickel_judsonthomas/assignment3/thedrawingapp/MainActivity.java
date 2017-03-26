@@ -1,9 +1,17 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -11,7 +19,7 @@ import petrov.kristiyan.colorpicker.ColorPicker;
 /* this is a ColorPicker library; here is the URL:
     https://github.com/kristiyanP/colorpicker?utm_source=android-arsenal.com&utm_medium=referral&utm_campaign=3121 */
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     // colorData is used to access the data that contains the colors the user will choose
     private ColorData colorData;
@@ -19,6 +27,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<String> colorList; // colorList will contain the colors for the user to choose
     private ColorPicker colorPicker; // colorPicker is used to access the library methods
     private Image userImage;    // each new image is an object stored in a vector
+
+    private ImageView backgroundColor;
+    private ImageView lineColor;
+    private Spinner freeStyle;
+    private ImageView circle;
+    private ImageView eraser;
+    private ImageView gallery;
+    private ImageView newImage;
+    private ImageView rectangle;
+    private ImageView VerticalLine;
+    private ImageView text;
+    private ImageView undo;
+    private ImageView redo;
+    private TextView userText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,20 +51,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         userImage = new Image();
 
         // ImageViews are linked to the choices the user has on screen
-        ImageView backgroundColor = (ImageView) findViewById(R.id.background_color);
-        ImageView lineChoice = (ImageView) findViewById(R.id.lineThickness);
-        ImageView circle = (ImageView) findViewById(R.id.circle);
-        ImageView lineColor = (ImageView) findViewById(R.id.lineColor);
-        ImageView eraser = (ImageView) findViewById(R.id.erase);
-        ImageView gallery = (ImageView) findViewById(R.id.saveToFile);
-        ImageView newImage = (ImageView) findViewById(R.id.newImage);
-        ImageView rectangle = (ImageView) findViewById(R.id.rectangle);
-        ImageView roundedRectangle = (ImageView) findViewById(R.id.roundedRect);
-        ImageView text = (ImageView) findViewById(R.id.text);
+        backgroundColor = (ImageView) findViewById(R.id.background_color);
+        lineColor = (ImageView) findViewById(R.id.lineColor);
+        freeStyle = (Spinner) findViewById(R.id.freeStyle);
+        circle = (ImageView) findViewById(R.id.circle);
+        eraser = (ImageView) findViewById(R.id.erase);
+        gallery = (ImageView) findViewById(R.id.saveToFile);
+        newImage = (ImageView) findViewById(R.id.newImage);
+        rectangle = (ImageView) findViewById(R.id.rectangle);
+        VerticalLine = (ImageView) findViewById(R.id.vertical_line);
+        text = (ImageView) findViewById(R.id.text);
+        undo = (ImageView) findViewById(R.id.undo);
+        redo = (ImageView) findViewById(R.id.redo);
+
+        // ArrayAdapter populates the spinner with the contents of a string array
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.line_widths, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        freeStyle.setAdapter(adapter);
+        freeStyle.setPrompt("Choose a Line Width");
+        freeStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                int width = Integer.parseInt(freeStyle.getSelectedItem().toString());
+                drawingEngine.setForegroundPaintStrokeWidth((float) width);
+                drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         // concise format to hold ImageViews
-        ImageView[] userOptionImageViews = {backgroundColor, lineChoice, circle, lineColor,
-                        eraser, gallery, newImage, rectangle, roundedRectangle, text};
+        ImageView[] userOptionImageViews = {backgroundColor, lineColor, circle,
+                        eraser, gallery, newImage, rectangle, VerticalLine, text, undo, redo};
 
         // when an image is clicked, the loop finds the View and sets the listener
         for (ImageView image: userOptionImageViews){
@@ -56,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         /* if one of the color wheels is chosen, the changeColor method will change the
           respective color */
-        if (v == R.id.lineColor || v == R.id.background_color){
+        if (v == R.id.background_color || v == R.id.lineColor){
             retrieveColorData(); // retrieves colors from ArrayList
             changeColor(v);
         }
@@ -81,28 +125,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // draws a circle on the screen
-
-        else if (view.getId() == R.id.circle){
+        else if (v == R.id.circle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.OVAL);
         }
 
         // draws a rectangle on the screen
-        else if (view.getId() == R.id.rectangle){
+        else if (v == R.id.rectangle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.RECTANGLE);
         }
 
-        //TESTING: here I use the rounded rect picture for selecting the freeform line
-        else if (view.getId() == R.id.roundedRect){
+        // gives the user the ability to draw any image with a choice of line thickness
+        else if (v == R.id.freeStyle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
         }
 
-        //TESTING: here I use the line thickness picture for selecting the straight line
-        else if(view.getId() == R.id.lineThickness){
+        // allows the user to place a straight line on the screen
+        else if(v == R.id.vertical_line){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.STRAIGHTLINE);
+        }
 
-     
+        // allows the user to draw text at a specified point
+        else if (v == R.id.text){
+            drawText();
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.TEXT);
+        }
+
+        else if (v == R.id.undo){
 
         }
+
+        else if (v == R.id.redo){
+
+        }
+
+
     }
     /* this method creates a new colorPicker object to ensure that colorPicker has the correct
         parent View; colorList retrieves the colors from the ColorData class; then the ArrayList is
@@ -110,14 +166,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void retrieveColorData(){
         colorPicker = new ColorPicker(MainActivity.this);
         colorList = colorData.getColorData();
-        colorPicker.setColors(colorList);
+        colorPicker.setColors(colorList); // library method
     }
 
     // this method actually changes the colors on the screen
     public void changeColor(final int id){
-        colorPicker.show();
+        setColorPickerTitle(id); // set color picker title
+        colorPicker.show(); // library method to display ArrayList of colors
+        // implements library listener
         colorPicker.setOnChooseColorListener(new ColorPicker.OnChooseColorListener() {
             @Override
+            // onChooseColor is a method in the library OnChooseColorListener interface
             public void onChooseColor(int position, int color) {
                 if (id == R.id.background_color){
                     drawingEngine.setBackgroundPaintColor(color);
@@ -127,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             @Override
             public void onCancel() {
-
+                colorPicker.dismissDialog();
             }
         });
     }
@@ -148,6 +207,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void deleteImagefromVector(UserDrawingEngine image){
         userImage.deleteImage(image);
+    }
+
+    // sets the title of the color picker depending on the user's choice
+    public void setColorPickerTitle(int id){
+        if (id == R.id.background_color){
+            colorPicker.setTitle("Pick a Background Color"); // library method setTitle()
+        }else if (id == R.id.lineColor){
+            colorPicker.setTitle("Pick the Line Color");
+        }
+    }
+
+    public void drawText(){
+        View view = (LayoutInflater.from(this)).inflate(R.layout.dialog, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(view);
+        userText = (EditText) view.findViewById(R.id.userText);
+        builder.setTitle("Enter Text to Place on the screen")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id){
+                        drawingEngine.setTextToDraw(userText.getText().toString().trim());
+                        drawingEngine.newText();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        builder.show();
     }
 
 }
