@@ -10,25 +10,34 @@
     tools:context="csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp.MainActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        android:weightSum="8">
 
         <ImageView
-            android:layout_width="47dp"
-            android:layout_height="37dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:srcCompat="@color/black_de"
+            android:id="@+id/freeLine"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/vertical_line"
             app:srcCompat="@drawable/v_line"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
-            android:background="#ffffff" />
+            android:background="#ffffff"
+            android:layout_weight="1" />
 
         <Spinner
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/freeStyle"
+            android:id="@+id/lineWidth"
             android:background="@drawable/free_style"
             android:layout_weight="1"
             android:paddingLeft="2dp"
@@ -38,7 +47,7 @@
         </Spinner>
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/lineColor"
             app:srcCompat="@drawable/line_color"
@@ -48,7 +57,7 @@
 
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/rectangle"
             app:srcCompat="@drawable/rectangle"
@@ -57,7 +66,7 @@
             android:paddingTop="4dp" />
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/circle"
             app:srcCompat="@drawable/circle"
@@ -66,22 +75,23 @@
             android:paddingTop="4dp" />
 
         <ImageView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/text"
             app:srcCompat="@drawable/t"
-            android:layout_weight="1"
             android:paddingLeft="2dp"
-            android:paddingTop="4dp" />
+            android:paddingTop="4dp"
+            android:layout_weight="1" />
 
         <ImageView
-            android:layout_width="47dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/background_color"
             app:srcCompat="@drawable/background_color"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
-            android:background="#ffffff" />
+            android:background="#ffffff"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
@@ -93,14 +103,15 @@
         android:id="@+id/drawingLayout"/>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center"
-        android:background="#ffffff">
+        android:background="#ffffff"
+        android:weightSum="5">
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/newImage"
             app:srcCompat="@drawable/new_image"
@@ -109,7 +120,7 @@
             android:paddingTop="4dp" />
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/saveToFile"
             app:srcCompat="@drawable/gallery"
@@ -119,7 +130,7 @@
             android:paddingBottom="8dp" />
 
         <ImageView
-            android:layout_width="41dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/erase"
             app:srcCompat="@drawable/eraser"
@@ -128,24 +139,26 @@
             android:paddingTop="4dp" />
 
         <ImageView
-            android:layout_width="47dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/undo"
             app:srcCompat="@drawable/undo"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
             android:background="#ffffff"
-            android:paddingBottom="4dp" />
+            android:paddingBottom="4dp"
+            android:layout_weight="1" />
 
         <ImageView
-            android:layout_width="47dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/redo"
             app:srcCompat="@drawable/redo"
             android:paddingLeft="2dp"
             android:paddingTop="4dp"
             android:background="#ffffff"
-            android:paddingBottom="4dp" />
+            android:paddingBottom="4dp"
+            android:layout_weight="1" />
 
     </LinearLayout>
 

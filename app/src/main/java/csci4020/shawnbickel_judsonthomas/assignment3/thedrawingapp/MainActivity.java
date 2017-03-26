@@ -1,7 +1,9 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -12,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -26,11 +29,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private UserDrawingEngine drawingEngine;
     private ArrayList<String> colorList; // colorList will contain the colors for the user to choose
     private ColorPicker colorPicker; // colorPicker is used to access the library methods
-    private Image userImage;    // each new image is an object stored in a vector
 
     private ImageView backgroundColor;
     private ImageView lineColor;
-    private Spinner freeStyle;
+    private Spinner lineWidth;
     private ImageView circle;
     private ImageView eraser;
     private ImageView gallery;
@@ -40,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView text;
     private ImageView undo;
     private ImageView redo;
-    private TextView userText;
+    private ImageView freeLine;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,12 +51,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         colorData = new ColorData();
         colorList = new ArrayList<String>();
         drawingEngine = (UserDrawingEngine) findViewById(R.id.drawingLayout);
-        userImage = new Image();
 
         // ImageViews are linked to the choices the user has on screen
         backgroundColor = (ImageView) findViewById(R.id.background_color);
         lineColor = (ImageView) findViewById(R.id.lineColor);
-        freeStyle = (Spinner) findViewById(R.id.freeStyle);
+        lineWidth = (Spinner) findViewById(R.id.lineWidth);
         circle = (ImageView) findViewById(R.id.circle);
         eraser = (ImageView) findViewById(R.id.erase);
         gallery = (ImageView) findViewById(R.id.saveToFile);
@@ -63,19 +65,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         text = (ImageView) findViewById(R.id.text);
         undo = (ImageView) findViewById(R.id.undo);
         redo = (ImageView) findViewById(R.id.redo);
+        freeLine = (ImageView) findViewById(R.id.freeLine);
 
         // ArrayAdapter populates the spinner with the contents of a string array
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.line_widths, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        freeStyle.setAdapter(adapter);
-        freeStyle.setPrompt("Choose a Line Width");
-        freeStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        lineWidth.setAdapter(adapter);
+        lineWidth.setPrompt("Choose a Line Width");
+        lineWidth.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                int width = Integer.parseInt(freeStyle.getSelectedItem().toString());
-                drawingEngine.setForegroundPaintStrokeWidth((float) width);
-                drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
+                int width = Integer.parseInt(lineWidth.getSelectedItem().toString());
+                drawingEngine.setPreviewPaintStrokeWidth((float) width);
             }
 
             @Override
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // concise format to hold ImageViews
         ImageView[] userOptionImageViews = {backgroundColor, lineColor, circle,
-                        eraser, gallery, newImage, rectangle, VerticalLine, text, undo, redo};
+                        eraser, gallery, newImage, rectangle, VerticalLine, text, undo, redo, freeLine};
 
         // when an image is clicked, the loop finds the View and sets the listener
         for (ImageView image: userOptionImageViews){
@@ -105,23 +107,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             changeColor(v);
         }
 
-        /* when the new page button is clicked, the image is saved to a vector in the Image class
-           and the page is reset by the newPage() method */
-        else if (v == R.id.newImage){
-            userImage.addImage(drawingEngine);
-            saveImageToFile(userImage);
-            newPage();
 
+        else if (v == R.id.newImage){
+            drawingEngine.reset();
         }
 
         // saves the image to a file
         else if(v == R.id.saveToFile){
-            saveImageToFile(userImage);
+            final View dialogView = (LayoutInflater.from(this)).inflate(R.layout.dialog, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setView(dialogView);
+
+            builder.setTitle("Enter the title of the image to save");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialog, int id){
+                    Bitmap bitmap = drawingEngine.exportDrawingToBitmap();
+                    String title = ((EditText) dialogView.findViewById(R.id.userText)).getText().toString().trim();
+                    if(saveImageToGallery(bitmap, title)){
+                        //successfully saved
+                        Toast.makeText(getApplicationContext(), "\"" + title + "\" successfully saved to the gallery!", Toast.LENGTH_LONG).show();
+                    }
+
+                    else{
+                        //failure
+                        Toast.makeText(getApplicationContext(), "Error: \"" + title + "\" could not be saved to the gallery.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int id){
+                    dialog.cancel();
+                }
+            });
+
+            builder.show();
         }
 
-        // deletes image from vector
+        // switches to eraser mode (which is a freeline with background color)
         else if (v == R.id.erase){
-            deleteImagefromVector(drawingEngine);
+            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.ERASER);
         }
 
         // draws a circle on the screen
@@ -134,10 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.RECTANGLE);
         }
 
-        // gives the user the ability to draw any image with a choice of line thickness
-        else if (v == R.id.freeStyle){
+        else if (v == R.id.freeLine){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
         }
+
+        // handled by spinner
+        /*else if (v == R.id.lineWidth){
+        }*/
 
         // allows the user to place a straight line on the screen
         else if(v == R.id.vertical_line){
@@ -146,18 +177,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // allows the user to draw text at a specified point
         else if (v == R.id.text){
-            drawText();
-            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.TEXT);
+            final View dialogView = (LayoutInflater.from(this)).inflate(R.layout.dialog, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setView(dialogView);
+
+            builder.setTitle("Enter Text to Place on the screen");
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+                        @Override
+                        public void onClick(DialogInterface dialog, int id){
+                            drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.TEXT);
+                            String textToDraw = ((EditText) dialogView.findViewById(R.id.userText)).getText().toString().trim();
+                            drawingEngine.setTextToDraw(textToDraw);
+                        }
+                    });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id){
+                            dialog.cancel();
+                        }
+                    });
+
+            builder.show();
+
         }
 
         else if (v == R.id.undo){
-
+            drawingEngine.undoLastDraw();
         }
 
         else if (v == R.id.redo){
-
+            drawingEngine.redoLastDraw();
         }
-
 
     }
     /* this method creates a new colorPicker object to ensure that colorPicker has the correct
@@ -198,15 +250,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
-        saveImageToFile(userImage);
+        //saveImageToFile(userImage);
     }
 
-    public void saveImageToFile(Image image){
-
-    }
-
-    public void deleteImagefromVector(UserDrawingEngine image){
-        userImage.deleteImage(image);
+    //saves "bitmapToSave" to the gallery. returns true if successful; false otherwise.
+    public boolean saveImageToGallery(Bitmap bitmapToSave, String imageTitle){
+        return(MediaStore.Images.Media.insertImage(
+                getContentResolver(),
+                bitmapToSave,
+                imageTitle,
+                "Image drawn using TheDrawingApp!") != null);
     }
 
     // sets the title of the color picker depending on the user's choice
@@ -217,27 +270,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             colorPicker.setTitle("Pick the Line Color");
         }
     }
-
-    public void drawText(){
-        View view = (LayoutInflater.from(this)).inflate(R.layout.dialog, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(view);
-        userText = (EditText) view.findViewById(R.id.userText);
-        builder.setTitle("Enter Text to Place on the screen")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener(){
-                    @Override
-                    public void onClick(DialogInterface dialog, int id){
-                        drawingEngine.setTextToDraw(userText.getText().toString().trim());
-                        drawingEngine.newText();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int id){
-                        dialog.cancel();
-                    }
-                });
-        builder.show();
-    }
-
 }
 
