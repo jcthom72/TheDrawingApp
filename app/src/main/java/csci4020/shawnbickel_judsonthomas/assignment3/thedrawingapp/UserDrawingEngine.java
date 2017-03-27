@@ -204,6 +204,7 @@ public class UserDrawingEngine extends View {
         }
     }
 
+
     private class StraightLine extends DrawableObject{
         private float startX, startY;
         private float endX, endY;
@@ -262,7 +263,7 @@ public class UserDrawingEngine extends View {
 
         public Text(Paint paint){
             super(paint);
-            paint.setTextSize(60f);
+            //paint.setTextSize(60f);
             //paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
 
@@ -279,7 +280,7 @@ public class UserDrawingEngine extends View {
 
         @Override
         public void drawMe(Canvas canvas) {
-            paint.setStrokeWidth(15f);
+            //paint.setStrokeWidth(15f);
             paint.setStyle(Paint.Style.FILL);
             canvas.drawText(text, startX, startY, paint);
             paint.setStyle(Paint.Style.STROKE);
@@ -423,6 +424,7 @@ public class UserDrawingEngine extends View {
         objectsToDraw.clear();
         redoHistoryObjects.clear();
         backgroundPaint.setColor(Color.WHITE);
+        eraserPaint.setColor(Color.WHITE);
         isPreviewing = false;
         invalidate();
     }
