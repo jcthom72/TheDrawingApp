@@ -6,6 +6,7 @@ import java.util.ArrayList;
  * Created by sbickel20 on 3/16/17.
  */
 
+// this class creates an ArrayList to be used by the ColorPicker library
 public class ColorData {
     private ArrayList<String> colorL;
 

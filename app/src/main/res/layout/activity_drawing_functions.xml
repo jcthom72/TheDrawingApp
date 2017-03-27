@@ -16,6 +16,17 @@
         tools:context="csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp.DrawingFunctions"
         android:background="#ffffff">
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/brush"
+            android:id="@+id/freeLine"
+            android:layout_below="@+id/description"
+            android:gravity="left"
+            android:paddingLeft="4dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:paddingTop="8dp" />
 
 
         <TextView
@@ -45,7 +56,7 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/v_line"
             android:id="@+id/vertical_line"
-            android:layout_below="@+id/description"
+            android:layout_below="@+id/freeLine"
             android:gravity="left"
             android:paddingLeft="4dp"
             android:layout_alignParentLeft="true"
@@ -78,7 +89,7 @@
 
 
         <TextView
-            android:text="@string/freeLineDescription"
+            android:text="@string/widthDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/free_styleDescription"
@@ -363,6 +374,21 @@
             android:layout_alignBottom="@+id/undo"
             android:layout_alignRight="@+id/eraseDescription"
             android:layout_alignEnd="@+id/eraseDescription" />
+
+        <TextView
+            android:text="@string/freeLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:id="@+id/Fdescription"
+            android:paddingTop="8dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:layout_marginTop="6dp"
+            android:layout_below="@+id/description"
+            android:layout_toRightOf="@+id/freeLine"
+            android:layout_toEndOf="@+id/freeLine" />
 
     </RelativeLayout>
 
