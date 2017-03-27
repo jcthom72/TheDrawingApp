@@ -6,7 +6,7 @@
     <string name="welcome">Welcome to The Drawing App</string>
     <string name="verticalLineDescription">Provides the ability to draw a straight line in any direction</string>
     <string name="widthDescription">Enables the width of the lines to be changed for any of the other options</string>
-    <string name="lineColorDescription">Provides a means to changes line color</string>
+    <string name="lineColorDescription">Provides a means to change line color</string>
     <string name="rectangle">Draws a rectangle or square, whichever the user pleases</string>
     <string name="circle">Draws a circle or oval, whichever the user pleases</string>
     <string name="text">Enables the user to enter any type of text to place on the screen</string>
