@@ -3,7 +3,7 @@ package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Environment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -13,9 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import petrov.kristiyan.colorpicker.ColorPicker;
@@ -243,23 +245,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    public void newPage(){
-        //drawingEngine.clearImage();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //saveImageToFile(userImage);
-    }
-
     //saves "bitmapToSave" to the gallery. returns true if successful; false otherwise.
     public boolean saveImageToGallery(Bitmap bitmapToSave, String imageTitle){
-        return(MediaStore.Images.Media.insertImage(
+        /*return(MediaStore.Images.Media.insertImage(
                 getContentResolver(),
                 bitmapToSave,
                 imageTitle,
-                "Image drawn using TheDrawingApp!") != null);
+                "Image drawn using Image Collector!") != null);*/
+
+        File fileDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath());
+        if(!fileDir.exists()) {
+            if(!fileDir.mkdirs()){
+                return false;
+            }
+        }
+
+        File file = new File(fileDir + "/" + imageTitle + ".png");
+
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            return bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+        } catch (FileNotFoundException e) {
+            return false;
+        }
     }
 
     // sets the title of the color picker depending on the user's choice
