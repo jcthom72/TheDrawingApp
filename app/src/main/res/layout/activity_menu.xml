@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_menu"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp.MenuActivity"
+    android:background="#000000"
+    android:weightSum="2"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.75">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Image Collection"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:textSize="36sp"
+            android:paddingTop="10dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=".25"
+        android:weightSum="4">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/background_abstract"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="Create Image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/createImage"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:background="#000000"
+            android:textSize="18sp" />
+
+        <Button
+            android:text="Description of Drawing Functions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/description"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:background="#000000" />
+
+        <Button
+            android:text="About app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/about"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:background="#000000" />
+    </LinearLayout>
+</LinearLayout>

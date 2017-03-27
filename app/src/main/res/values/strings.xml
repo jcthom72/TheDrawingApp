@@ -1,5 +1,21 @@
 <resources>
     <string name="app_name">TheDrawingApp</string>
+    <string name="description">You can use the various options provided to draw whatever you like:
+        from circles, to rectangles, to text, to free lines. You also have the ability to save your
+        images to your Android gallery.</string>
+    <string name="welcome">Welcome to The Drawing App</string>
+    <string name="verticalLineDescription">Provides the ability to draw a straight line in any direction</string>
+    <string name="freeLineDescription">Enables the width of the lines to be changed for any of the other options</string>
+    <string name="lineColorDescription">Provides a means to changes line color</string>
+    <string name="rectangle">Draws a rectangle or square, whichever the user pleases</string>
+    <string name="circle">Draws a circle or oval, whichever the user pleases</string>
+    <string name="text">Enables the user to enter any type of text to place on the screen</string>
+    <string name="backgroundColor">Changes the background color</string>
+    <string name="newImage">Clears the current screen; deletes the image without saving it.</string>
+    <string name="gallery">Saves the current image to the gallery</string>
+    <string name="erase">Allows the user to erase portions or all of current image</string>
+    <string name="undo">Allows the user to undo the previous or multiple actions</string>
+    <string name="redo">Provides the ability to override a previous deletion</string>
     <string-array name="line_widths">
         <item>10</item>
         <item>20</item>

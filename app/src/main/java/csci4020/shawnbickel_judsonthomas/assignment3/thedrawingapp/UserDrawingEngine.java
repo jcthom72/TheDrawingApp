@@ -14,8 +14,6 @@ import android.view.View;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Stack;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * Created by sbickel20 on 3/15/17.
@@ -264,8 +262,8 @@ public class UserDrawingEngine extends View {
 
         public Text(Paint paint){
             super(paint);
-            //p.setStyle(Paint.Style.FILL);
             paint.setTextSize(60f);
+            //paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
 
         public Text(String text, float startX, float startY, Paint paint){
@@ -281,7 +279,10 @@ public class UserDrawingEngine extends View {
 
         @Override
         public void drawMe(Canvas canvas) {
+            paint.setStrokeWidth(15f);
+            paint.setStyle(Paint.Style.FILL);
             canvas.drawText(text, startX, startY, paint);
+            paint.setStyle(Paint.Style.STROKE);
         }
 
         @Override
