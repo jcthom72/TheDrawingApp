@@ -29,4 +29,21 @@
         <item>180</item>
         <item>210</item>
     </string-array>
+    <string-array name="text_size">
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>60</item>
+        <item>90</item>
+        <item>105</item>
+        <item>120</item>
+        <item>150</item>
+        <item>180</item>
+        <item>210</item>
+    </string-array>
+    <string-array name="line_styles">
+        <item>Stroke</item>
+        <item>Fill</item>
+        <item>Fill and Stroke</item>
+    </string-array>
 </resources>
