@@ -20,7 +20,8 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".DrawingFunctions" />
+        <activity android:name=".DrawingFunctions"
+            android:screenOrientation="portrait"/>
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>

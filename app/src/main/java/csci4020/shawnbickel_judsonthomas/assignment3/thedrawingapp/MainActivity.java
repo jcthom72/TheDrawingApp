@@ -253,10 +253,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             lineStyle.setEnabled(true);
         }
 
-        // handled by spinner
-        /*else if (v == R.id.lineWidth){
-        }*/
-
         // allows the user to place a straight line on the screen
         else if(v == R.id.vertical_line){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.STRAIGHTLINE);
