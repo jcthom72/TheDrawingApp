@@ -25,7 +25,6 @@ public class UserDrawingEngine extends View {
     private final int MAX_REDO_HISTORY_SIZE = 10;
     private Paint backgroundPaint; //describes paint style for background
     private Paint foregroundPaint; //describes paint style for drawable objects in foreground
-    private Paint eraserPaint; //describes paint style for eraser
     private DrawableObject previewObject;
     private LinkedList<DrawableObject> objectsToDraw;
     private LinkedList<DrawableObject> redoHistoryObjects;
@@ -156,7 +155,7 @@ public class UserDrawingEngine extends View {
     }
 
     private class FreeLine extends DrawableObject{
-        private Path path;
+        protected Path path;
 
         public FreeLine(Paint paint){
             super(paint);
@@ -204,6 +203,37 @@ public class UserDrawingEngine extends View {
         }
     }
 
+    private class Eraser extends FreeLine{
+        float eraserSize;
+
+        public Eraser(){
+            super(backgroundPaint);
+            this.eraserSize = backgroundPaint.getStrokeWidth();
+        }
+
+        public Eraser(Path path, float eraserSize){
+            super(path, backgroundPaint);
+            this.eraserSize = backgroundPaint.getStrokeWidth();
+        }
+
+        @Override
+        public void drawMe(Canvas canvas) {
+            paint.setStrokeWidth(eraserSize);
+            super.drawMe(canvas);
+        }
+
+        public void setEraserSize(float eraserSize){
+            this.eraserSize = eraserSize;
+        }
+
+        @Override
+        public Object clone() throws CloneNotSupportedException {
+            /*important here that cloned erasers do not allocate a new background paint object;
+            * instead, their constructors always use the same current background paint object, ensuring that all
+            * erasers are always "drawn" with the correct, most current background color.*/
+            return new Eraser(new Path(path), backgroundPaint.getStrokeWidth());
+        }
+    }
 
     private class StraightLine extends DrawableObject{
         private float startX, startY;
@@ -280,10 +310,7 @@ public class UserDrawingEngine extends View {
 
         @Override
         public void drawMe(Canvas canvas) {
-            //paint.setStrokeWidth(15f);
-            paint.setStyle(Paint.Style.FILL);
             canvas.drawText(text, startX, startY, paint);
-            paint.setStyle(Paint.Style.STROKE);
         }
 
         @Override
@@ -335,22 +362,20 @@ public class UserDrawingEngine extends View {
     }
 
     private void userDrawingSetup() {
-
         foregroundPaint = new Paint();
         foregroundPaint.setColor(Color.BLACK);
         foregroundPaint.setAntiAlias(true);
         foregroundPaint.setStyle(Paint.Style.STROKE);
         foregroundPaint.setStrokeWidth(10);
 
-        eraserPaint = new Paint();
-        eraserPaint.setColor(Color.WHITE);
-        eraserPaint.setAntiAlias(true);
-        eraserPaint.setStyle(Paint.Style.STROKE);
-        eraserPaint.setStrokeWidth(10);
-
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.WHITE);
-        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        /*for our erasers; safe to do because background will always only
+        * be drawn using drawColor, which does not care about stroke width / style*/
+        backgroundPaint.setAntiAlias(true);
+        backgroundPaint.setStyle(Paint.Style.STROKE);
+        backgroundPaint.setStrokeWidth(10);
 
         //initialize our preview cache of all the different objects that can be created
         previewCache.put(PreviewType.RECTANGLE, new Rectangle(foregroundPaint));
@@ -358,7 +383,7 @@ public class UserDrawingEngine extends View {
         previewCache.put(PreviewType.FREELINE, new FreeLine(foregroundPaint));
         previewCache.put(PreviewType.STRAIGHTLINE, new StraightLine(foregroundPaint));
         previewCache.put(PreviewType.TEXT, new Text(foregroundPaint));
-        previewCache.put(PreviewType.ERASER, new FreeLine(eraserPaint));
+        previewCache.put(PreviewType.ERASER, new Eraser());
 
         previewObject = previewCache.get(PreviewType.FREELINE);
         isPreviewing = false;
@@ -404,8 +429,7 @@ public class UserDrawingEngine extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         //draw the background
-        canvas.drawPaint(backgroundPaint);
-
+        canvas.drawColor(backgroundPaint.getColor());
 
         //draw all of the previous objects
         for(DrawableObject objectToDraw : objectsToDraw){
@@ -416,7 +440,6 @@ public class UserDrawingEngine extends View {
         if (isPreviewing) {
             previewObject.drawMe(canvas);
         }
-
     }
 
     /*resets the view; removing all drawing calls*/
@@ -424,13 +447,20 @@ public class UserDrawingEngine extends View {
         objectsToDraw.clear();
         redoHistoryObjects.clear();
         backgroundPaint.setColor(Color.WHITE);
-        eraserPaint.setColor(Color.WHITE);
         isPreviewing = false;
         invalidate();
     }
 
-    public void setForegroundPaintColor(int color){
-        foregroundPaint.setColor(color);
+    public void setPreviewPaintColor(int color){
+        /*if you attempt to change the preview color while you're in eraser mode the program
+        * will change the foreground color which will affect the color of the next drawable object you select,
+        * but will not change the eraser's color*/
+        if(previewObject == previewCache.get(PreviewType.ERASER)){
+            foregroundPaint.setColor(color);
+            return;
+        }
+
+        previewObject.paint.setColor(color);
 
         /*if the user changes the foreground color during a preview, invalidate the screen
         * to reflect the updated color; otherwise, there is no need to invalidate*/
@@ -439,17 +469,26 @@ public class UserDrawingEngine extends View {
         }
     }
 
-    /*used to set the foreground style (e.g. STROKE, STROKE_AND_FILL, etc.)*/
-    public void setForegroundPaintStyle(Paint.Style style){
-        foregroundPaint.setStyle(style);
+    /*used to set the preview paint style (e.g. STROKE, STROKE_AND_FILL, etc.)*/
+    public void setPreviewPaintStyle(Paint.Style style){
+        previewObject.paint.setStyle(style);
 
         if(isPreviewing) {
             invalidate();
         }
     }
 
-    public void setPreviewPaintStrokeWidth(float width){
-        previewObject.paint.setStrokeWidth(width);
+    /*if previewing text, sets the text size; otherwise, sets the stroke size*/
+    public void setPreviewPaintSize(float size){
+        if(previewObject == previewCache.get(PreviewType.TEXT)){
+            previewObject.paint.setTextSize(size);
+        }
+
+        else if(previewObject == previewCache.get(PreviewType.ERASER)){
+            ((Eraser) previewObject).setEraserSize(size);
+        }
+
+        previewObject.paint.setStrokeWidth(size);
 
         if(isPreviewing){
             invalidate();
@@ -458,7 +497,6 @@ public class UserDrawingEngine extends View {
 
     public void setBackgroundPaintColor(int color){
         backgroundPaint.setColor(color);
-        eraserPaint.setColor(color);
         invalidate();
     }
 

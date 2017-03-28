@@ -1,9 +1,44 @@
 package csci4020.shawnbickel_judsonthomas.assignment3.thedrawingapp;
 
+/*
+ ADDITIONAL FEATURES:
+  1.drawing ovals
+        -UserDrawingEngine.java
+            -Oval{}
+
+  2.drawing freelines (brush mode)
+        -UserDrawingEngine.java
+            -FreeLine{}
+
+  3.drawing text
+        -userDrawingEngine.java
+            -Text{}
+
+  4.undo / redo history
+        -userDrawingEngine.java
+            -objectsToDraw, redoHistoryObjects, undoLastDraw(), redoLastDraw()
+
+  5.saving images to pictures folder and loading them into gallery
+        -MainActivity.java
+            -saveImageToGallery(), requestImageSavePermission(), onRequestPermissionResult(), registerImageWithGallery()
+
+  6.eraser
+        -userDrawingEngine.java
+            -Eraser{}
+*/
+
+import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -35,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView backgroundColor;
     private ImageView lineColor;
     private Spinner lineWidth;
+    private Spinner lineStyle;
     private ImageView circle;
     private ImageView eraser;
     private ImageView gallery;
@@ -45,6 +81,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView undo;
     private ImageView redo;
     private ImageView freeLine;
+
+    private enum SaveImagePermission{GRANTED, DENIED, UNDETERMINED};
+    private SaveImagePermission canSaveImage;
+    private int SAVE_IMAGE_PERMISSION = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         backgroundColor = (ImageView) findViewById(R.id.background_color);
         lineColor = (ImageView) findViewById(R.id.lineColor);
         lineWidth = (Spinner) findViewById(R.id.lineWidth);
+        lineStyle = (Spinner) findViewById(R.id.lineStyle);
         circle = (ImageView) findViewById(R.id.circle);
         eraser = (ImageView) findViewById(R.id.erase);
         gallery = (ImageView) findViewById(R.id.saveToFile);
@@ -69,22 +110,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         redo = (ImageView) findViewById(R.id.redo);
         freeLine = (ImageView) findViewById(R.id.freeLine);
 
+        // Initialize line width spinner
         // ArrayAdapter populates the spinner with the contents of a string array
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.line_widths, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         lineWidth.setAdapter(adapter);
-        lineWidth.setPrompt("Choose a Line Width");
+        lineWidth.setPrompt("Choose a Line Width / Text Size");
         lineWidth.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 int width = Integer.parseInt(lineWidth.getSelectedItem().toString());
-                drawingEngine.setPreviewPaintStrokeWidth((float) width);
+                drawingEngine.setPreviewPaintSize((float) width);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+                lineWidth.setSelection(0); //10pt item
+            }
+        });
 
+        //Initialize stroke style spinner
+        // ArrayAdapter populates the spinner with the contents of a string array
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.line_styles, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        lineStyle.setAdapter(adapter);
+        lineStyle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch(lineStyle.getSelectedItem().toString().toUpperCase()){
+                    case "STROKE":
+                        drawingEngine.setPreviewPaintStyle(Paint.Style.STROKE);
+                        break;
+
+                    case "FILL":
+                        drawingEngine.setPreviewPaintStyle(Paint.Style.FILL);
+                        break;
+
+                    case "FILL AND STROKE":
+                        drawingEngine.setPreviewPaintStyle(Paint.Style.FILL_AND_STROKE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                lineStyle.setSelection(0); //stroke item
             }
         });
 
@@ -96,6 +168,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (ImageView image: userOptionImageViews){
             image.setOnClickListener(this);
         }
+
+        //user-granted permission for saving an image
+        canSaveImage = SaveImagePermission.UNDETERMINED;
     }
 
     @Override
@@ -121,21 +196,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             builder.setView(dialogView);
 
-            builder.setTitle("Enter the title of the image to save");
+            builder.setTitle("Enter the name of the image to save");
 
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener(){
                 @Override
                 public void onClick(DialogInterface dialog, int id){
                     Bitmap bitmap = drawingEngine.exportDrawingToBitmap();
                     String title = ((EditText) dialogView.findViewById(R.id.userText)).getText().toString().trim();
-                    if(saveImageToGallery(bitmap, title)){
+                    String savedImagePath = saveImageToGallery(bitmap, title);
+                    if(savedImagePath != null){
                         //successfully saved
-                        Toast.makeText(getApplicationContext(), "\"" + title + "\" successfully saved to the gallery!", Toast.LENGTH_LONG).show();
+                        registerImageWithGallery(savedImagePath);
+                        Toast.makeText(getApplicationContext(), "Successfully saved \"" + savedImagePath + "\"!", Toast.LENGTH_LONG).show();
                     }
 
                     else{
                         //failure
-                        Toast.makeText(getApplicationContext(), "Error: \"" + title + "\" could not be saved to the gallery.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Error: could not save \"" + savedImagePath + "\".", Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -152,20 +229,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // switches to eraser mode (which is a freeline with background color)
         else if (v == R.id.erase){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.ERASER);
+            lineStyle.setSelection(0); //stroke
+            lineStyle.setEnabled(false);
         }
 
         // draws a circle on the screen
         else if (v == R.id.circle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.OVAL);
+            lineStyle.setSelection(0); //stroke
+            lineStyle.setEnabled(true);
         }
 
         // draws a rectangle on the screen
         else if (v == R.id.rectangle){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.RECTANGLE);
+            lineStyle.setSelection(0); //stroke
+            lineStyle.setEnabled(true);
         }
 
         else if (v == R.id.freeLine){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.FREELINE);
+            lineStyle.setSelection(0); //stroke
+            lineStyle.setEnabled(true);
         }
 
         // handled by spinner
@@ -175,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // allows the user to place a straight line on the screen
         else if(v == R.id.vertical_line){
             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.STRAIGHTLINE);
+            lineStyle.setSelection(0); //stroke
+            lineStyle.setEnabled(true);
         }
 
         // allows the user to draw text at a specified point
@@ -192,6 +279,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             drawingEngine.setCurrentObjectToDraw(UserDrawingEngine.PreviewType.TEXT);
                             String textToDraw = ((EditText) dialogView.findViewById(R.id.userText)).getText().toString().trim();
                             drawingEngine.setTextToDraw(textToDraw);
+                            lineStyle.setSelection(1); //fill
+                            lineStyle.setEnabled(false);
                         }
                     });
 
@@ -235,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (id == R.id.background_color){
                     drawingEngine.setBackgroundPaintColor(color);
                 }else if (id == R.id.lineColor){
-                    drawingEngine.setForegroundPaintColor(color);
+                    drawingEngine.setPreviewPaintColor(color);
                 }
             }
             @Override
@@ -246,28 +335,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //saves "bitmapToSave" to the gallery. returns true if successful; false otherwise.
-    public boolean saveImageToGallery(Bitmap bitmapToSave, String imageTitle){
-        /*return(MediaStore.Images.Media.insertImage(
-                getContentResolver(),
-                bitmapToSave,
-                imageTitle,
-                "Image drawn using Image Collector!") != null);*/
-
-        File fileDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath());
-        if(!fileDir.exists()) {
-            if(!fileDir.mkdirs()){
-                return false;
-            }
+    public String saveImageToGallery(Bitmap bitmapToSave, String imageTitle){
+        if(canSaveImage == SaveImagePermission.UNDETERMINED){
+            requestImageSavePermission();
         }
 
-        File file = new File(fileDir + "/" + imageTitle + ".png");
+        else if(canSaveImage == SaveImagePermission.DENIED){
+            return null;
+        }
+
+        File photoDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "TheDrawingApp");
+        photoDir.mkdirs();
+
+        File file = new File(photoDir, imageTitle + ".png");
 
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            return bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            if(bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, fos) == true){
+                return photoDir.toString() + "/" + imageTitle + ".png";
+            }
+
+            else{
+                return null;
+            }
 
         } catch (FileNotFoundException e) {
-            return false;
+            return null;
         }
     }
 
@@ -278,6 +371,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if (id == R.id.lineColor){
             colorPicker.setTitle("Pick the Line Color");
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == SAVE_IMAGE_PERMISSION){
+            if(grantResults.length > 0){
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    canSaveImage = SaveImagePermission.GRANTED;
+                }
+                else if(grantResults[0] == PackageManager.PERMISSION_DENIED){
+                    canSaveImage = SaveImagePermission.DENIED;
+                }
+            }
+        }
+    }
+
+    void requestImageSavePermission(){
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, SAVE_IMAGE_PERMISSION);
+        }
+    }
+
+    /*uses media scanner to add the specified photo at imagePath to the media provider database; registering it in the gallery*/
+    /*code taken from public android API documentation
+    https://developer.android.com/training/camera/photobasics.html#TaskGallery*/
+    private void registerImageWithGallery(String imagePath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(imagePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
     }
 }
 
